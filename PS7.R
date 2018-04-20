@@ -13,6 +13,10 @@ crimeData <- read.csv("March2018.csv")
 
 
 ## 2) Compute number of crimes per day, by type of crime 
+crimeData<-mutate(crimeData, Date=substr(DateOccur,1,10))
+crimeData$Date<-as.Date(crimeData$Date, "%m/%d/%Y")
+crimeData$March2018<-(format(crimeData$Date, "%Y-%m")=="2018-03")
+
 unique(crimeData$Crime)
 crimeData$crimeType<-""
 for (i in 1:nrow(crimeData)){
@@ -64,36 +68,43 @@ for (i in 1:nrow(crimeData)){
     crimeData$crimeType[i]<-"All Others"
   }
 }
-numCrimeType <- crimeData %>% 
+
+crimeDayType <- crimeData %>% 
+  group_by(Date, crimeType) %>% 
+  summarise(count=n())
+crimeDayType
+
+crimeTypeMarch <- crimeData %>% 
+  filter(March2018==TRUE) %>%
   group_by(crimeType) %>% 
   summarise(count=n())
-numCrimeType<-mutate(numCrimeType, numCrimePerDay=(count/31))
-numCrimeType<-select(numCrimeType, -count)
-numCrimeType
-id2<-which.max(numCrimeType$numCrimePerDay)
-numCrimeType$crimeType[id3]
-numCrimeType$numCrimePerDay[id3]
-# Larcency is the type of crime that happened the most number of times per day (33.3) in March 2018.
+id2<-which.max(crimeTypeMarch$count)
+crimeTypeMarch$crimeType[id2]
+crimeTypeMarch$count[id2]
+# Larcency is the type of crime that happened the most (891) in March 2018.
 
 
 ## 3) Compute number of crimes per day, by neighborhood
-numCrimeNeighborhood <- crimeData %>% 
+crimeDayNeighborhood <- crimeData %>% 
+  group_by(Date, Neighborhood) %>% 
+  summarise(count=n())
+crimeDayNeighborhood
+
+crimeNeighborhoodMarch <- crimeData %>% 
+  filter(March2018==TRUE) %>%
   group_by(Neighborhood) %>% 
   summarise(count=n())
-numCrimeNeighborhood<-mutate(numCrimeNeighborhood, numCrimePerDay=(count/31))
-numCrimeNeighborhood<-select(numCrimeNeighborhood, -count)
-numCrimeNeighborhood
-id3<-which.max(numCrimeNeighborhood$numCrimePerDay)
-numCrimeNeighborhood$Neighborhood[id3]
-numCrimeNeighborhood$numCrimePerDay[id3]
-# Neighborhood number 35 (Downtown) had the most number of crimes per day (9.8) in March 2018. 
+id3<-which.max(crimeNeighborhoodMarch$count)
+crimeNeighborhoodMarch$Neighborhood[id3]
+crimeNeighborhoodMarch$count[id3]
+# Neighborhood number 35 (Downtown) had the most number of crimes per day (294) in March 2018. 
 
 
 ## 4) Compute proportion of crime related to robbery, by district. 
-# discard District==0 obs, since District unclear. 
 unique(crimeData$District)
 proporRobbery<-c()
-for (i in 1:6){
+# discard District==0 obs, since District unclear. 
+for (i in 1:6){        
   oneDistrict<-filter(crimeData, District==i)
   temp<-oneDistrict %>% 
     group_by(crimeType) %>% 
@@ -105,5 +116,12 @@ for (i in 1:6){
 }
 proporRobbery
 which.max(proporRobbery)
+# District 6 has the largest proport of crime related to robbery. 
 
 
+## 5) Plot types of crime 
+ggplot(data=crimeData)+geom_bar(mapping = aes(x = crimeType))
+
+
+## 6) Plot types of crime by district 
+ggplot(data=crimeData)+geom_bar(mapping = aes(x = crimeType))
