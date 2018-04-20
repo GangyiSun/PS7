@@ -123,14 +123,28 @@ which.max(proporRobbery)
 crimeData %>% 
   group_by(Date) %>% 
   summarise(count=n()) %>%
-  ggplot(aes(x = Date, y = count))+geom_line()+ggtitle("Number of crimes per day, full dataset") 
+  ggplot(aes(x=Date, y=count))+geom_line()+ggtitle("Number of crimes per day, full dataset")+ylab("Count")
 
 crimeData %>% 
   filter(March2018==TRUE) %>%
   group_by(Date) %>% 
   summarise(count=n()) %>%
-  ggplot(aes(x = Date, y = count))+geom_line()+ggtitle("Number of crimes per day, March 2018") 
+  ggplot(aes(x=Date, y=count))+geom_line()+ggtitle("Number of crimes per day, March 2018")+ylab("Count")
 
 
 ## 6) Plot types of crime by district 
-ggplot(data=crimeData)+geom_bar(mapping = aes(x = crimeType))
+crimeData$District<-as.factor(crimeData$District)
+
+crimeData %>% 
+  group_by(Date, District) %>% 
+  summarise(count=n())%>%
+  ggplot(aes(x=Date, y=count, group=District, color=District))+geom_line()+
+  ggtitle("Number of crimes per day by district, full dataset")+ylab("Count")
+
+crimeData %>% 
+  filter(March2018==TRUE) %>%
+  group_by(Date, District) %>% 
+  summarise(count=n())%>%
+  ggplot(aes(x=Date, y=count, group=District, color=District))+geom_line(size=0.3)+
+  ggtitle("Number of crimes per day by district, March 2018")+ylab("Count")
+
