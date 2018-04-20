@@ -97,7 +97,7 @@ crimeNeighborhoodMarch <- crimeData %>%
 id3<-which.max(crimeNeighborhoodMarch$count)
 crimeNeighborhoodMarch$Neighborhood[id3]
 crimeNeighborhoodMarch$count[id3]
-# Neighborhood number 35 (Downtown) had the most number of crimes per day (294) in March 2018. 
+# Neighborhood number 35 (Downtown) had the most number of crimes (294) in March 2018. 
 
 
 ## 4) Compute proportion of crime related to robbery, by district. 
