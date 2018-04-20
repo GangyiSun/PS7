@@ -120,7 +120,16 @@ which.max(proporRobbery)
 
 
 ## 5) Plot types of crime 
-ggplot(data=crimeData)+geom_bar(mapping = aes(x = crimeType))
+crimeData %>% 
+  group_by(Date) %>% 
+  summarise(count=n()) %>%
+  ggplot(aes(x = Date, y = count))+geom_line()+ggtitle("Number of crimes per day, full dataset") 
+
+crimeData %>% 
+  filter(March2018==TRUE) %>%
+  group_by(Date) %>% 
+  summarise(count=n()) %>%
+  ggplot(aes(x = Date, y = count))+geom_line()+ggtitle("Number of crimes per day, March 2018") 
 
 
 ## 6) Plot types of crime by district 
