@@ -89,4 +89,21 @@ numCrimeNeighborhood$numCrimePerDay[id3]
 # Neighborhood number 35 (Downtown) had the most number of crimes per day (9.8) in March 2018. 
 
 
+## 4) Compute proportion of crime related to robbery, by district. 
+# discard District==0 obs, since District unclear. 
+unique(crimeData$District)
+proporRobbery<-c()
+for (i in 1:6){
+  oneDistrict<-filter(crimeData, District==i)
+  temp<-oneDistrict %>% 
+    group_by(crimeType) %>% 
+    summarise(count=n())
+  sum(temp$count)
+  id<-which(temp$crimeType=="Robbery")
+  proportion<-temp$count[id]/sum(temp$count)
+  proporRobbery<-c(proporRobbery,proportion)
+}
+proporRobbery
+which.max(proporRobbery)
+
 
