@@ -3,8 +3,10 @@
 ## Gangyi Sun (441748)
 
 
+
 library(dplyr)
 library(ggplot2)
+
 
 
 ## 1) Import dataset 
@@ -12,11 +14,13 @@ setwd("~/Documents/GitHub/PS7")
 crimeData <- read.csv("March2018.csv")
 
 
-## 2) Compute number of crimes per day, by type of crime 
-crimeData<-mutate(crimeData, Date=substr(DateOccur,1,10))
-crimeData$Date<-as.Date(crimeData$Date, "%m/%d/%Y")
-crimeData$March2018<-(format(crimeData$Date, "%Y-%m")=="2018-03")
 
+## 2) Compute number of crimes per day, by type of crime 
+crimeData<-mutate(crimeData, Date=substr(DateOccur,1,10))   # obtains date of each crime
+crimeData$Date<-as.Date(crimeData$Date, "%m/%d/%Y")
+crimeData$March2018<-(format(crimeData$Date, "%Y-%m")=="2018-03")   # obtains month of each crime
+
+# categorizes each type of crime (see pg 6 of FAQ in github for explanation of this method of categorization)
 unique(crimeData$Crime)
 crimeData$crimeType<-""
 for (i in 1:nrow(crimeData)){
@@ -69,11 +73,13 @@ for (i in 1:nrow(crimeData)){
   }
 }
 
+# counts number crimes per type per day, info contained in crimeDayType
 crimeDayType <- crimeData %>% 
   group_by(Date, crimeType) %>% 
   summarise(count=n())
 crimeDayType
 
+# counts number of crimes per type for march, info contained in crimeTypeMarch 
 crimeTypeMarch <- crimeData %>% 
   filter(March2018==TRUE) %>%
   group_by(crimeType) %>% 
@@ -84,12 +90,16 @@ crimeTypeMarch$count[id2]
 # Larcency is the type of crime that happened the most (891) in March 2018.
 
 
+
 ## 3) Compute number of crimes per day, by neighborhood
+
+# counts number crimes per neighborhood per day, info contained in crimeDayNeighborhood
 crimeDayNeighborhood <- crimeData %>% 
   group_by(Date, Neighborhood) %>% 
   summarise(count=n())
 crimeDayNeighborhood
 
+# counts number of crimes per neighborhood for march, info contained in crimeNeighborhoodMarch 
 crimeNeighborhoodMarch <- crimeData %>% 
   filter(March2018==TRUE) %>%
   group_by(Neighborhood) %>% 
@@ -100,31 +110,37 @@ crimeNeighborhoodMarch$count[id3]
 # Neighborhood number 35 (Downtown) had the most number of crimes (294) in March 2018. 
 
 
+
 ## 4) Compute proportion of crime related to robbery, by district. 
 unique(crimeData$District)
 proporRobbery<-c()
 # discard District==0 obs, since District unclear. 
 for (i in 1:6){        
-  oneDistrict<-filter(crimeData, District==i)
+  oneDistrict<-filter(crimeData, District==i)     # loop through each district
+  # counts number of crimes per type in district i 
   temp<-oneDistrict %>% 
     group_by(crimeType) %>% 
     summarise(count=n())
-  sum(temp$count)
-  id<-which(temp$crimeType=="Robbery")
-  proportion<-temp$count[id]/sum(temp$count)
-  proporRobbery<-c(proporRobbery,proportion)
+  sum(temp$count)     # total number of crimes in district i
+  id<-which(temp$crimeType=="Robbery")      # obtains number of robberies in district i
+  proportion<-temp$count[id]/sum(temp$count)      # proportion of total crimes in district i that are robberies 
+  proporRobbery<-c(proporRobbery,proportion)      # creates vector of robbery proportion for districts 1 to 6
 }
 proporRobbery
-which.max(proporRobbery)
+which.max(proporRobbery)      # obtains district with the largest proportion of crime related to robbery 
 # District 6 has the largest proport of crime related to robbery. 
 
 
+
 ## 5) Plot types of crime 
+
+# Visualize changes of all types of crime over entire period of dates incldued in the datasaet 
 crimeData %>% 
   group_by(Date) %>% 
   summarise(count=n()) %>%
   ggplot(aes(x=Date, y=count))+geom_line()+ggtitle("Number of crimes per day, full dataset")+ylab("Count")
 
+# Visualize changes of all types of crime over March 2018 
 crimeData %>% 
   filter(March2018==TRUE) %>%
   group_by(Date) %>% 
@@ -132,15 +148,18 @@ crimeData %>%
   ggplot(aes(x=Date, y=count))+geom_line()+ggtitle("Number of crimes per day, March 2018")+ylab("Count")
 
 
+
 ## 6) Plot types of crime by district 
 crimeData$District<-as.factor(crimeData$District)
 
+# Visualize changes of all types of crime over entire period of dates incldued in the datasaet, by district 
 crimeData %>% 
   group_by(Date, District) %>% 
   summarise(count=n())%>%
   ggplot(aes(x=Date, y=count, group=District, color=District))+geom_line()+
   ggtitle("Number of crimes per day by district, full dataset")+ylab("Count")
 
+# Visualize changes of all types of crime over March 2018, by district 
 crimeData %>% 
   filter(March2018==TRUE) %>%
   group_by(Date, District) %>% 
